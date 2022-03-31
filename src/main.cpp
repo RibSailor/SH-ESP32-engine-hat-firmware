@@ -1,18 +1,8 @@
-// Signal K application template file.
-//
-// This application demonstrates core SensESP concepts in a very
-// concise manner. You can build and upload the application as is
-// and observe the value changes on the serial port monitor.
-//
-// You can use this source file as a basis for your own projects.
-// Remove the parts that are not relevant to you, and add your own code
-// for external hardware libraries.
-
 #include <Adafruit_ADS1X15.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-#include "eh_analog.h"
+#include "eh_guages.h"
 #include "eh_digital.h"
 #include "eh_display.h"
 #include "sensesp/sensors/analog_input.h"
@@ -21,6 +11,7 @@
 #include "sensesp/signalk/signalk_output.h"
 #include "sensesp/system/lambda_consumer.h"
 #include "sensesp_app_builder.h"
+
 
 using namespace sensesp;
 
@@ -130,22 +121,22 @@ void setup() {
 
 
   // Connect the tank senders
-  auto tank_a_volume = ConnectTankSender(ads1115, 0, "A");
-  // auto tank_b_volume = ConnectTankSender(ads1115, 1, "B");
-  // auto tank_c_volume = ConnectTankSender(ads1115, 2, "C");
-  // auto tank_d_volume = ConnectTankSender(ads1115, 3, "D");
+  auto temp_a_reading = ConnectTempSender(ads1115, 0, "A");
+  auto temp_b_reading = ConnectTempSender(ads1115, 1, "B");
+  auto press_c_reading = ConnectPressSender(ads1115, 2, "C");
+  auto press_d_reading = ConnectPressSender(ads1115, 3, "D");
 
   // Connect the tacho senders
-  auto tacho_1_frequency = ConnectTachoSender(kDigitalInputPin1, "1");
+  // auto tacho_1_frequency = ConnectTachoSender(kDigitalInputPin1, "1");
 
   // Connect the alarm inputs
-  auto alarm_2_input = ConnectAlarmSender(kDigitalInputPin2, "2");
+  // auto alarm_2_input = ConnectAlarmSender(kDigitalInputPin2, "2");
   // auto alarm_3_input = ConnectAlarmSender(kDigitalInputPin3, "3");
   // auto alarm_4_input = ConnectAlarmSender(kDigitalInputPin4, "4");
 
   // Update the alarm states based on the input value changes
-  alarm_2_input->connect_to(
-      new LambdaConsumer<bool>([](bool value) { alarm_states[1] = value; }));
+  // alarm_2_input->connect_to(
+  //    new LambdaConsumer<bool>([](bool value) { alarm_states[1] = value; }));
   // alarm_3_input->connect_to(
   //     new LambdaConsumer<bool>([](bool value) { alarm_states[2] = value; }));
   // alarm_4_input->connect_to(
@@ -160,11 +151,19 @@ void setup() {
     });
 
     // Add display updaters for temperature values
-    tank_a_volume->connect_to(new LambdaConsumer<float>(
-        [](float value) { PrintValue(display, 2, "Tank A", 100 * value); }));
+    temp_a_reading->connect_to(new LambdaConsumer<float>(
+        [](float value) { PrintValue(display, 2, "Temp A", value); }));
+    
+    temp_b_reading->connect_to(new LambdaConsumer<float>(
+        [](float value) { PrintValue(display, 3, "Temp B", value); }));
 
-    tacho_1_frequency->connect_to(new LambdaConsumer<float>(
-        [](float value) { PrintValue(display, 3, "RPM 1", 60 * value); }));
+    press_c_reading->connect_to(new LambdaConsumer<float>(
+        [](float value) { PrintValue(display, 4, "Press C", value); }));
+
+    press_d_reading->connect_to(new LambdaConsumer<float>(
+        [](float value) { PrintValue(display, 5, "Press D", value); }));        
+    // tacho_1_frequency->connect_to(new LambdaConsumer<float>(
+    //    [](float value) { PrintValue(display, 3, "RPM 1", 60 * value); }));
 
     // Create a "christmas tree" display for the alarms
     app.onRepeat(1000, []() {
@@ -172,10 +171,10 @@ void setup() {
       for (int i = 0; i < 4; i++) {
         state_string[i] = alarm_states[i] ? '*' : '_';
       }
-      PrintValue(display, 4, "Alarm", state_string);
+      PrintValue(display, 6, "Alarm", state_string);
     });
   }
-
+  
   // Start networking, SK server connections and other SensESP internals
   sensesp_app->start();
 }
