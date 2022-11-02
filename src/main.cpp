@@ -111,8 +111,8 @@ void setup() {
                     ->set_hostname("engine-hat")
                     // Optionally, hard-code the WiFi and Signal K server
                     // settings. This is normally not needed.
-                    //->set_wifi("My WiFi SSID", "my_wifi_password")
-                    //->set_sk_server("192.168.10.3", 80)
+                    ->set_wifi("ORBI20", "smoothwater684")
+                    ->set_sk_server("192.168.1.101", 80)
                     ->get_app();
 
 
@@ -120,29 +120,11 @@ void setup() {
   bool display_present = InitializeSSD1306(&app, sensesp_app, &display, i2c);
 
 
-  // Connect the tank senders
+  // Connect the guage senders
   auto temp_a_reading = ConnectTempSender(ads1115, 0, "A");
   auto temp_b_reading = ConnectTempSender(ads1115, 1, "B");
   auto press_c_reading = ConnectPressSender(ads1115, 2, "C");
   auto press_d_reading = ConnectPressSender(ads1115, 3, "D");
-
-  // Connect the tacho senders
-  // auto tacho_1_frequency = ConnectTachoSender(kDigitalInputPin1, "1");
-
-  // Connect the alarm inputs
-  // auto alarm_2_input = ConnectAlarmSender(kDigitalInputPin2, "2");
-  // auto alarm_3_input = ConnectAlarmSender(kDigitalInputPin3, "3");
-  // auto alarm_4_input = ConnectAlarmSender(kDigitalInputPin4, "4");
-
-  // Update the alarm states based on the input value changes
-  // alarm_2_input->connect_to(
-  //    new LambdaConsumer<bool>([](bool value) { alarm_states[1] = value; }));
-  // alarm_3_input->connect_to(
-  //     new LambdaConsumer<bool>([](bool value) { alarm_states[2] = value; }));
-  // alarm_4_input->connect_to(
-  //     new LambdaConsumer<bool>([](bool value) { alarm_states[3] = value; }));
-
-
 
   // Connect the outputs to the display
   if (display_present) {
