@@ -21,7 +21,6 @@ const int kSCLPin = 17;
 
 // ADS1115 I2C address
 const int kADS1115Address = 0x4b;
-
 // CAN bus (NMEA 2000) pins on SH-ESP32
 const int kCANRxPin = GPIO_NUM_34;
 const int kCANTxPin = GPIO_NUM_32;
@@ -119,7 +118,13 @@ void setup() {
   // Initialize the OLED display
   bool display_present = InitializeSSD1306(&app, sensesp_app, &display, i2c);
 
+  // Connect the alarm inputs
+  auto alarm_1_input = ConnectAlarmSender(kDigitalInputPin1, "1");
 
+   // Update the alarm states based on the input value changes
+  alarm_1_input->connect_to(
+      new LambdaConsumer<bool>([](bool value) { alarm_states[0] = value; })); 
+  
   // Connect the guage senders
   auto temp_a_reading = ConnectTempSender(ads1115, 0, "A");
   auto temp_b_reading = ConnectTempSender(ads1115, 1, "B");
